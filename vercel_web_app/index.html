@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en" style="height: 100%; margin: 0;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VidBunker - Private Video Infrastructure</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        indigo: {
+                            500: '#6366F1',
+                            600: '#4F46E5',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { margin: 0; min-height: 100vh; overflow-x: hidden; background-color: #050505; color: #f1f5f9; }
+    </style>
+</head>
+<body class="flex flex-col h-full bg-[#050505] text-slate-100 font-sans selection:bg-indigo-500 selection:text-white pb-20">
+
+    <div class="px-6 py-4 flex justify-between items-center bg-[#0A0A0A] border-b border-white/5 sticky top-0 z-50">
+        <div>
+            <h1 class="text-2xl font-bold tracking-tight text-white">Vid<span class="text-indigo-500">Bunker</span></h1>
+            <p class="text-xs text-slate-500">Private Video Infrastructure</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+            <span class="text-[10px] uppercase tracking-widest font-bold text-emerald-500/80">Active Node</span>
+        </div>
+    </div>
+
+    <!-- Search -->
+    <div class="px-4 py-4">
+        <div class="relative">
+            <input type="text" id="searchInput" placeholder="Search secure vault..." 
+                class="w-full bg-[#111111] border border-white/5 rounded-full py-3 px-5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors">
+            <svg class="w-5 h-5 absolute right-4 top-3 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+        </div>
+    </div>
+
+    <div class="px-4 pb-4">
+        <h2 class="text-lg font-semibold text-white mb-4">Latest Deployments</h2>
+        <div id="videoGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Videos injected here -->
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="fixed bottom-0 left-0 right-0 h-16 bg-[#0A0A0A] border-t border-white/5 flex items-center justify-around px-6 z-50">
+        <a href="index.html" class="flex flex-col items-center gap-1 text-indigo-500">
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
+            <span class="text-[10px] font-medium">Vault</span>
+        </a>
+        <a href="admin.html" class="flex flex-col items-center gap-1 text-slate-500 hover:text-white transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            <span class="text-[10px] font-medium">Admin</span>
+        </a>
+    </div>
+
+    <script src="assets/js/db.js"></script>
+    <script>
+        function renderVideos(search = '') {
+            const grid = document.getElementById('videoGrid');
+            const videos = getAllVideos().filter(v => v.title.toLowerCase().includes(search.toLowerCase()));
+            
+            grid.innerHTML = videos.map(video => `
+                <a href="watch.html?v=${video.id}" class="block bg-[#0A0A0A] rounded-2xl overflow-hidden border border-white/5 hover:border-indigo-500/50 transition-all group active:scale-[0.98]">
+                    <div class="relative w-full aspect-video bg-slate-900 overflow-hidden">
+                        <img src="${video.thumbnailUrl}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="${video.title}">
+                        <div class="absolute bottom-2 right-2 bg-black/80 px-2 py-1 rounded text-[10px] font-medium text-white">
+                            ${video.duration}
+                        </div>
+                        <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
+                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div class="w-12 h-12 bg-indigo-600/90 rounded-full flex items-center justify-center shadow-lg backdrop-blur-sm">
+                                <div class="w-0 h-0 border-t-[6px] border-t-transparent border-l-[10px] border-l-white border-b-[6px] border-b-transparent ml-1"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-base font-semibold text-white leading-tight mb-1 truncate">${video.title}</h3>
+                        <p class="text-xs text-slate-400 line-clamp-2 mb-3">${video.description}</p>
+                        <div class="flex items-center justify-between text-[11px] text-slate-500">
+                            <span>${(video.views/1000).toFixed(1)}k views</span>
+                            <span>${timeAgo(video.uploadDate)}</span>
+                        </div>
+                    </div>
+                </a>
+            `).join('');
+        }
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            renderVideos(e.target.value);
+        });
+
+        renderVideos();
+    </script>
+</body>
+</html>

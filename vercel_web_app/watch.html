@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en" style="height: 100%; margin: 0;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watch - VidBunker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: { extend: { colors: { indigo: { 500: '#6366F1', 600: '#4F46E5' } } } }
+        }
+    </script>
+    <style>
+        body { margin: 0; min-height: 100vh; background-color: #050505; color: #f1f5f9; }
+        video { pointer-events: auto; }
+    </style>
+</head>
+<body class="flex flex-col bg-[#050505] pb-20">
+
+    <div class="px-4 py-3 flex items-center gap-4 bg-[#0A0A0A] border-b border-white/5 sticky top-0 z-50">
+        <a href="index.html" class="p-2 -ml-2 text-white hover:bg-white/10 rounded-full transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+        </a>
+        <h1 class="text-sm font-semibold tracking-tight text-white truncate" id="headerTitle">Decrypting...</h1>
+    </div>
+
+    <div class="w-full bg-black max-w-5xl mx-auto flex flex-col pt-0 md:pt-4">
+        <!-- Secure Player Mock -->
+        <div class="relative w-full aspect-video bg-[#050505] md:rounded-2xl overflow-hidden shadow-2xl border-y md:border border-white/5" oncontextmenu="return false;">
+            <video id="videoPlayer" class="w-full h-full" controls controlsList="nodownload" playsinline preload="metadata">
+                <source src="" type="video/mp4" id="videoSource">
+            </video>
+            <!-- Watermark Security -->
+            <div class="absolute top-4 right-4 opacity-30 text-[10px] font-mono text-white pointer-events-none z-10 select-none tracking-widest">
+                VB-SECURE-NODE
+            </div>
+            <!-- Anti-Download Block -->
+            <div class="absolute inset-x-0 top-0 h-[20%] z-0 pointer-events-auto" oncontextmenu="return false;"></div>
+        </div>
+
+        <div class="p-4" id="metaContainer">
+            <!-- Details injected here -->
+        </div>
+    </div>
+
+    <script src="assets/js/db.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const videoId = urlParams.get('v');
+        const video = getVideo(videoId);
+
+        if (!video) {
+            document.getElementById('metaContainer').innerHTML = '<div class="text-center py-10"><p class="text-red-500 font-mono">ERR: Node access denied or video purged.</p></div>';
+            document.getElementById('headerTitle').innerText = 'Access Denied';
+        } else {
+            incrementViews(videoId);
+            document.getElementById('headerTitle').innerText = video.title;
+            const player = document.getElementById('videoPlayer');
+            document.getElementById('videoSource').src = video.videoUrl;
+            player.poster = video.thumbnailUrl;
+            player.load();
+
+            document.getElementById('metaContainer').innerHTML = `
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h2 class="text-xl md:text-2xl font-semibold text-white leading-tight mb-2">${video.title}</h2>
+                        <div class="flex gap-2">
+                            <span class="text-[10px] bg-[#111111] text-slate-300 px-2.5 py-1 rounded-full border border-white/5 font-medium">4K HDR</span>
+                            <span class="text-[10px] bg-indigo-500/20 text-indigo-400 px-2.5 py-1 rounded-full font-medium">AES-256</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-6 py-4 border-y border-white/5 mb-4">
+                    <div>
+                        <p class="text-base font-bold text-white">${(video.views).toLocaleString()}</p>
+                        <p class="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">Views</p>
+                    </div>
+                    <div>
+                        <p class="text-base font-bold text-white">${video.duration}</p>
+                        <p class="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">Duration</p>
+                    </div>
+                    <div>
+                        <p class="text-base font-bold text-white">${timeAgo(video.uploadDate)}</p>
+                        <p class="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">Uploaded</p>
+                    </div>
+                </div>
+                
+                <div class="bg-[#111111] rounded-2xl p-4 border border-white/5">
+                    <p class="text-sm text-slate-300 whitespace-pre-wrap leading-relaxed">${video.description}</p>
+                </div>
+                
+                <div class="mt-6 bg-indigo-600/10 border border-indigo-500/20 rounded-3xl p-5 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold text-indigo-400 uppercase tracking-wider mb-1">Generate Watch Link</p>
+                        <p class="text-[10px] text-slate-500">Self-destructs 24h after generation.</p>
+                    </div>
+                    <button onclick="navigator.clipboard.writeText(window.location.href); alert('Secure Link Copied to Clipboard Lifecycle!')" class="bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-xs font-bold py-2.5 px-5 rounded-xl transition-all shadow-lg shadow-indigo-500/20">
+                        Copy Link
+                    </button>
+                </div>
+            `;
+        }
+
+        document.addEventListener('contextmenu', event => event.preventDefault());
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'C')) e.preventDefault();
+            if (e.ctrlKey && e.key === 'U') e.preventDefault();
+        });
+    </script>
+</body>
+</html>
